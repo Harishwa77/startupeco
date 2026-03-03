@@ -1,8 +1,7 @@
-
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
-import { EngineMode } from "./Dashboard";
+import React, { useState, useMemo } from "react";
+import { EngineMode, EngineResult } from "./Dashboard";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
@@ -18,14 +17,14 @@ import { evaluateFounderStartup } from "@/ai/flows/founder-startup-evaluation";
 import { investorInvestmentAnalysis } from "@/ai/flows/investor-investment-analysis";
 import { internStartupMatching } from "@/ai/flows/intern-startup-matching";
 import { evolutionStartupMutation } from "@/ai/flows/evolution-startup-mutation";
-import { Loader2, Play, Users, Briefcase } from "lucide-react";
+import { Loader2, Play, Briefcase } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useFirestore, useCollection, useMemoFirebase, useUser } from "@/firebase";
 import { collection } from "firebase/firestore";
 
 interface InputFormProps {
   mode: EngineMode;
-  onResultsReceived: (data: any) => void;
+  onResultsReceived: (data: EngineResult) => void;
   onLoading: (isLoading: boolean) => void;
   isLoading: boolean;
 }
@@ -36,7 +35,6 @@ export function InputForm({ mode, onResultsReceived, onLoading, isLoading }: Inp
   const { user } = useUser();
 
   const startupsQuery = useMemoFirebase(() => {
-    // Only query if the user is authenticated to satisfy security rules
     if (!user) return null;
     return collection(db, "startups_for_investment");
   }, [db, user]);
@@ -74,6 +72,8 @@ export function InputForm({ mode, onResultsReceived, onLoading, isLoading }: Inp
     onLoading(true);
     try {
       let result;
+      let inputPayload: any = { ...formData };
+
       if (mode === "founder") {
         result = await evaluateFounderStartup({
           startupIdea: formData.startupIdea,
@@ -90,6 +90,11 @@ export function InputForm({ mode, onResultsReceived, onLoading, isLoading }: Inp
         if (!selectedStartup) {
           throw new Error("Please select a startup from the pool.");
         }
+        inputPayload = {
+          ...formData,
+          selectedStartupName: selectedStartup.name,
+          selectedStartupIdea: selectedStartup.ideaDescription
+        };
         result = await investorInvestmentAnalysis({
           mode: "investor",
           startupIdea: selectedStartup.ideaDescription,
@@ -98,7 +103,7 @@ export function InputForm({ mode, onResultsReceived, onLoading, isLoading }: Inp
           region: selectedStartup.region,
           budget: selectedStartup.initialBudget?.toString() || "0",
           teamSize: selectedStartup.teamSize?.toString() || "1",
-          founderData: "Registered Founder Data", // In a real app, you'd fetch the founder profile
+          founderData: "Registered Founder Data",
           startupData: `Current Revenue: $${selectedStartup.currentRevenue}`,
           marketData: formData.marketData,
           competitionData: formData.competitionData,
@@ -125,7 +130,8 @@ export function InputForm({ mode, onResultsReceived, onLoading, isLoading }: Inp
           competitionData: formData.competitionData
         });
       }
-      onResultsReceived(result);
+      
+      onResultsReceived({ output: result, input: inputPayload });
     } catch (error: any) {
       console.error("Engine Error:", error);
       toast({

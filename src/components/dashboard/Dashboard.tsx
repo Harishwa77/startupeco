@@ -14,9 +14,14 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 export type EngineMode = "founder" | "investor" | "intern" | "evolution";
 
+export interface EngineResult {
+  output: any;
+  input: any;
+}
+
 export function Dashboard() {
   const [mode, setMode] = useState<EngineMode>("founder");
-  const [results, setResults] = useState<any>(null);
+  const [results, setResults] = useState<EngineResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   
   const { user, isUserLoading } = useUser();
@@ -114,7 +119,7 @@ export function Dashboard() {
         <div className="lg:col-span-7 xl:col-span-8">
           <OutputDisplay 
             mode={mode} 
-            data={results} 
+            results={results} 
             isLoading={isLoading} 
           />
         </div>

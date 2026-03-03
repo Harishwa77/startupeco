@@ -13,9 +13,10 @@ import { useToast } from "@/hooks/use-toast";
 
 interface FounderResultsProps {
   data: any;
+  input: any;
 }
 
-export function FounderResults({ data }: FounderResultsProps) {
+export function FounderResults({ data, input }: FounderResultsProps) {
   const { user } = useUser();
   const db = useFirestore();
   const { toast } = useToast();
@@ -26,39 +27,39 @@ export function FounderResults({ data }: FounderResultsProps) {
       toast({
         variant: "destructive",
         title: "Authentication Required",
-        description: "Please connect your wallet/account to publish.",
+        description: "Please connect your wallet/account to register your startup.",
       });
       return;
     }
 
     setIsPublishing(true);
     try {
-      // Create a simplified startup object for the investment pool
+      // Create a comprehensive startup object using both AI refinements and original form data
       const startupData = {
         founderId: user.uid,
-        name: `Startup ${Math.floor(Math.random() * 1000)}`, // Using random name for MVP
-        ideaDescription: data.improvedIdea,
-        industry: "General Tech",
-        targetMarket: "Global",
-        region: "Online",
-        initialBudget: 100000,
+        name: `${input.industry || 'Unnamed'} Venture - ${Math.floor(Math.random() * 1000)}`,
+        ideaDescription: data.improvedIdea || input.startupIdea,
+        industry: input.industry || "General",
+        targetMarket: input.targetMarket || "Global",
+        region: input.region || "Online",
+        initialBudget: parseFloat(input.budget?.replace(/[^0-9.]/g, '')) || 0,
         currentRevenue: 0,
-        teamSize: 1,
+        teamSize: parseInt(input.teamSize) || 1,
         createdAt: serverTimestamp(),
       };
 
       addDocumentNonBlocking(collection(db, "startups_for_investment"), startupData);
       
       toast({
-        title: "Success",
-        description: "Your startup idea has been published to the investment pool!",
+        title: "Startup Registered",
+        description: "Your venture is now visible to the investor network!",
       });
     } catch (e) {
       console.error("Publish Error:", e);
       toast({
         variant: "destructive",
-        title: "Publish Failed",
-        description: "Could not add to the investment pool.",
+        title: "Registration Failed",
+        description: "Could not register your startup idea.",
       });
     } finally {
       setIsPublishing(false);
@@ -75,7 +76,7 @@ export function FounderResults({ data }: FounderResultsProps) {
           className="bg-primary hover:bg-primary/90 text-primary-foreground font-headline font-bold uppercase tracking-wider text-xs gap-2"
         >
           {isPublishing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Globe className="w-4 h-4" />}
-          Publish to Pool
+          Register for Investment
         </Button>
       </div>
 
@@ -102,7 +103,7 @@ export function FounderResults({ data }: FounderResultsProps) {
         <Card className="p-6 bg-card border-border/50 space-y-4">
           <div className="flex items-center gap-2">
             <Lightbulb className="w-5 h-5 text-accent" />
-            <h3 className="font-headline font-semibold">Innovation Suggetions</h3>
+            <h3 className="font-headline font-semibold">Innovation Suggestions</h3>
           </div>
           <ul className="space-y-3">
             {data.innovationSuggestions.map((suggestion: string, i: number) => (

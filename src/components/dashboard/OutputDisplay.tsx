@@ -1,8 +1,7 @@
 "use client";
 
 import React from "react";
-import { EngineMode } from "./Dashboard";
-import { ScoreGrid } from "./ScoreGrid";
+import { EngineMode, EngineResult } from "./Dashboard";
 import { FounderResults } from "./founder/FounderResults";
 import { InvestorResults } from "./investor/InvestorResults";
 import { InternResults } from "./intern/InternResults";
@@ -12,11 +11,11 @@ import { Card } from "@/components/ui/card";
 
 interface OutputDisplayProps {
   mode: EngineMode;
-  data: any;
+  results: EngineResult | null;
   isLoading: boolean;
 }
 
-export function OutputDisplay({ mode, data, isLoading }: OutputDisplayProps) {
+export function OutputDisplay({ mode, results, isLoading }: OutputDisplayProps) {
   if (isLoading) {
     return (
       <div className="h-full min-h-[500px] flex flex-col items-center justify-center space-y-4 bg-secondary/10 border border-border/30 rounded-xl">
@@ -29,7 +28,7 @@ export function OutputDisplay({ mode, data, isLoading }: OutputDisplayProps) {
     );
   }
 
-  if (!data) {
+  if (!results) {
     return (
       <div className="h-full min-h-[500px] flex flex-col items-center justify-center space-y-6 text-center p-8 bg-secondary/10 border border-border/30 rounded-xl border-dashed">
         <div className="p-4 bg-secondary rounded-full">
@@ -50,13 +49,15 @@ export function OutputDisplay({ mode, data, isLoading }: OutputDisplayProps) {
     );
   }
 
+  const { output, input } = results;
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       {/* Dynamic Results based on Mode */}
-      {mode === "founder" && <FounderResults data={data} />}
-      {mode === "investor" && <InvestorResults data={data} />}
-      {mode === "intern" && <InternResults data={data} />}
-      {mode === "evolution" && <EvolutionResults data={data} />}
+      {mode === "founder" && <FounderResults data={output} input={input} />}
+      {mode === "investor" && <InvestorResults data={output} />}
+      {mode === "intern" && <InternResults data={output} />}
+      {mode === "evolution" && <EvolutionResults data={output} />}
 
       {/* Raw JSON viewer for structured output requirement */}
       <Card className="p-6 bg-[#0B0E14] border-border/50">
@@ -65,7 +66,7 @@ export function OutputDisplay({ mode, data, isLoading }: OutputDisplayProps) {
           <span className="text-[10px] bg-accent/20 text-accent px-2 py-0.5 rounded border border-accent/30 font-code">ECHELON_STREAMS_V1.0</span>
         </div>
         <pre className="font-code text-xs text-accent/80 overflow-x-auto p-4 rounded bg-black/40 border border-border/30 max-h-[400px]">
-          {JSON.stringify(data, null, 2)}
+          {JSON.stringify(output, null, 2)}
         </pre>
       </Card>
     </div>
