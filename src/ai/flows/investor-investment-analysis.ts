@@ -1,16 +1,12 @@
-
 'use server';
 /**
  * @fileOverview An AI Venture Capitalist agent for evaluating startup investment attractiveness.
- *
- * - investorInvestmentAnalysis - A function that handles the investor investment analysis process.
- * - InvestorInvestmentAnalysisInput - The input type for the investorInvestmentAnalysis function.
- * - InvestorInvestmentAnalysisOutput - The return type for the investorInvestmentAnalysis function.
  */
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 import { fetchIndustryNews } from '@/services/news-service';
+import { fetchMarketBenchmarks } from '@/services/market-service';
 
 const InvestorInvestmentAnalysisInputSchema = z.object({
   mode: z.literal('investor'),
@@ -61,7 +57,12 @@ export async function investorInvestmentAnalysis(input: InvestorInvestmentAnalys
 
 const investorInvestmentAnalysisPrompt = ai.definePrompt({
   name: 'investorInvestmentAnalysisPrompt',
-  input: { schema: InvestorInvestmentAnalysisInputSchema.extend({ realTimeNews: z.string().optional() }) },
+  input: { 
+    schema: InvestorInvestmentAnalysisInputSchema.extend({ 
+      realTimeNews: z.string().optional(),
+      marketBenchmarks: z.string().optional()
+    }) 
+  },
   output: { schema: InvestorInvestmentAnalysisOutputSchema },
   prompt: `You are an Advanced AI Startup Ecosystem Engine operating as an AI Venture Capitalist. 
 
@@ -69,20 +70,23 @@ Your task is to provide a comprehensive investment attractiveness evaluation.
 
 CRITICAL: You must set the "mode" property in the output JSON to exactly "investor".
 
-Instructions:
-1. Evaluate attractiveness for a check of {{{investmentAmount}}}.
-2. Provide a 5-year numerical growth projection for valuation and revenue (in $1000s). This will be used for a line chart. Use exactly 5 data points (Year 1, 2, 3, 4, 5).
-3. Estimate ROI, survival odds, and risks based on current market sentiment.
-4. Assign measurable scores (0-100).
-5. Compare this startup to the existing pool of {{{registeredStartupsCount}}} startups.
+Input Benchmarks:
+{{#if marketBenchmarks}}Live Market Benchmarks:
+{{{marketBenchmarks}}}{{/if}}
+
+{{#if realTimeNews}}Live Industry News:
+{{{realTimeNews}}}{{/if}}
 
 Startup Details:
 Idea: {{{startupIdea}}}
-Revenue: {{{startupData}}}
+Revenue Data: {{{startupData}}}
 Industry: {{{industry}}}
 
-{{#if realTimeNews}}Real-time Industry Sentiment & Headlines:
-{{{realTimeNews}}}{{/if}}
+Instructions:
+1. Evaluate attractiveness for a check of {{{investmentAmount}}}.
+2. Provide a 5-year numerical growth projection for valuation and revenue (in $1000s). Use exactly 5 data points (Year 1, 2, 3, 4, 5).
+3. Estimate ROI and risks, specifically factoring in the Live Market Benchmarks provided.
+4. Compare this startup to the existing pool of {{{registeredStartupsCount}}} startups.
 
 Return ONLY valid JSON.`,
 });
@@ -94,12 +98,15 @@ const investorInvestmentAnalysisFlow = ai.defineFlow(
     outputSchema: InvestorInvestmentAnalysisOutputSchema,
   },
   async (input) => {
-    // Fetch industry news to ground the investor analysis in real-time context
-    const realTimeNews = await fetchIndustryNews(input.industry);
+    const [realTimeNews, marketBenchmarks] = await Promise.all([
+      fetchIndustryNews(input.industry),
+      fetchMarketBenchmarks(input.industry)
+    ]);
 
     const { output } = await investorInvestmentAnalysisPrompt({
       ...input,
       realTimeNews,
+      marketBenchmarks,
     });
     
     if (!output) throw new Error('Failed to generate investor analysis');

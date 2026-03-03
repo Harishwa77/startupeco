@@ -1,16 +1,12 @@
-
 'use server';
 /**
  * @fileOverview A Genkit flow for evaluating a founder's startup idea.
- *
- * - evaluateFounderStartup - A function that handles the founder startup evaluation process.
- * - FounderStartupEvaluationInput - The input type for the evaluateFounderStartup function.
- * - FounderStartupEvaluationOutput - The return type for the evaluateFounderStartup function.
  */
 
 import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 import { fetchIndustryNews } from '@/services/news-service';
+import { fetchMarketBenchmarks } from '@/services/market-service';
 
 const FounderStartupEvaluationInputSchema = z.object({
   startupIdea: z.string().describe('The core idea of the startup.'),
@@ -58,11 +54,16 @@ export async function evaluateFounderStartup(
 
 const founderStartupEvaluationPrompt = ai.definePrompt({
   name: 'founderStartupEvaluationPrompt',
-  input: { schema: FounderStartupEvaluationInputSchema.extend({ realTimeNews: z.string().optional() }) },
+  input: { 
+    schema: FounderStartupEvaluationInputSchema.extend({ 
+      realTimeNews: z.string().optional(),
+      marketBenchmarks: z.string().optional()
+    }) 
+  },
   output: { schema: FounderStartupEvaluationOutputSchema },
   prompt: `You are an Advanced AI Startup Ecosystem Engine, acting as an AI Startup Accelerator and AI Product Strategist.
 
-Your task is to provide a comprehensive, analytical, and data-driven evaluation of a startup idea for a founder. Your analysis must be realistic, conservative, and avoid motivational fluff.
+Your task is to provide a comprehensive, analytical, and data-driven evaluation of a startup idea for a founder.
 
 Input details:
 Startup Idea: {{{startupIdea}}}
@@ -71,22 +72,23 @@ Target Market: {{{targetMarket}}}
 Region: {{{region}}}
 Budget: {{{budget}}}
 Team Size: {{{teamSize}}}
-Founder Data: {{{founderData}}}
-{{#if marketData}}Market Data: {{{marketData}}}{{/if}}
-{{#if competitionData}}Competition Data: {{{competitionData}}}{{/if}}
+
+{{#if marketBenchmarks}}Real-time Market Benchmarks:
+{{{marketBenchmarks}}}{{/if}}
+
 {{#if realTimeNews}}Real-time Industry News Context:
 {{{realTimeNews}}}{{/if}}
 
-Based on the provided input, perform the following tasks and return ONLY valid JSON that strictly adheres to the output schema.
+Based on the provided input, perform the following tasks and return ONLY valid JSON.
 CRITICAL: You must set the "mode" property in the output JSON to exactly "founder".
 
 Tasks:
-1. Evaluate Clarity and Uniqueness: Provide a direct and concise evaluation.
-2. Suggest 3 Innovation Improvements: Propose three distinct and actionable innovation improvements.
-3. Optimize Revenue Model: Suggest specific, data-backed strategies.
-4. Suggest Technical Stack & API Recommendations: Recommend a technical stack AND at least 3 high-value external APIs (e.g., Stripe, Plaid, Twilio, etc.) that increase automation or data richness.
-5. Generate 3-Month Execution Roadmap: Create a realistic 3-month roadmap.
-6. Provide Market & Risk Analysis: Deliver thorough, conservative assessments grounded in current trends provided in the news context.
+1. Evaluate Clarity and Uniqueness.
+2. Suggest 3 Innovation Improvements.
+3. Optimize Revenue Model.
+4. Suggest Technical Stack & API Recommendations (Include at least 3 high-value APIs).
+5. Generate 3-Month Execution Roadmap.
+6. Provide Market & Risk Analysis: Grounded in the provided news and market benchmarks.
 7. Score the Startup (0-100).
 
 Return ONLY valid JSON.`,
@@ -99,12 +101,15 @@ const founderStartupEvaluationFlow = ai.defineFlow(
     outputSchema: FounderStartupEvaluationOutputSchema,
   },
   async (input) => {
-    // Fetch industry news to ground the AI in real-time context
-    const realTimeNews = await fetchIndustryNews(input.industry);
+    const [realTimeNews, marketBenchmarks] = await Promise.all([
+      fetchIndustryNews(input.industry),
+      fetchMarketBenchmarks(input.industry)
+    ]);
 
     const { output } = await founderStartupEvaluationPrompt({
       ...input,
       realTimeNews,
+      marketBenchmarks,
     });
     
     if (!output) {

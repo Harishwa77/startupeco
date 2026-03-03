@@ -9,19 +9,19 @@ Advanced AI Startup Accelerator, VC, and Market Analyst.
 3. **Register**: Founders can publish ideas to the public pool.
 4. **Invest**: Investors can pick from the pool and run deep-dive memos.
 
-## 🔑 Recommended API Keys
+## 🔑 Required API Keys
 
 To enable real-time intelligence, add these to your `.env`:
 
-- `NEWS_API_KEY`: Get one at [newsapi.org](https://newsapi.org/) (Real-time sentiment).
-- `ALPHA_VANTAGE_API_KEY`: Get one at [alphavantage.co](https://www.alphavantage.co/) (Market benchmarks).
-- `CLEARBIT_API_KEY`: Get one at [clearbit.com](https://clearbit.com/) (Founder & Company enrichment).
+- `NEWS_API_KEY`: `a5c3789a-6899-4e34-9e66-614bf923aedc` (Integrated)
+- `ALPHA_VANTAGE_API_KEY`: `LBFN1L9QJ85O2W4Z` (Integrated)
 - `GEMINI_API_KEY`: Required for the core Genkit AI Engine.
 
 ## 🛠 Tech Stack
 
 - **Framework**: Next.js 15 (App Router)
 - **AI**: Genkit with Google Gemini
+- **Intelligence**: NewsAPI + Alpha Vantage
 - **Database**: Firebase Firestore
 - **Auth**: Firebase Authentication
 - **UI**: Tailwind CSS + ShadCN UI
