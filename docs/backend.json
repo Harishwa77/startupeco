@@ -1,0 +1,333 @@
+{
+  "entities": {
+    "UserProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserProfile",
+      "type": "object",
+      "description": "Represents a user within the EchelonAI platform, who can assume roles such as founder, investor, or intern.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the UserProfile entity."
+        },
+        "email": {
+          "type": "string",
+          "description": "The user's email address, used for communication and identification.",
+          "format": "email"
+        },
+        "name": {
+          "type": "string",
+          "description": "The full name of the user."
+        },
+        "userType": {
+          "type": "string",
+          "description": "The designated role of the user on the platform (e.g., 'founder', 'investor', 'intern')."
+        },
+        "skills": {
+          "type": "array",
+          "description": "A list of key skills possessed by the user, relevant for roles like intern or founder.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "experienceSummary": {
+          "type": "string",
+          "description": "A brief summary of the user's professional experience, particularly relevant for intern and founder profiles."
+        },
+        "bio": {
+          "type": "string",
+          "description": "A short biographical description or professional summary for the user."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the user profile was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp indicating the last time the user profile was updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "name",
+        "userType",
+        "createdAt"
+      ]
+    },
+    "Startup": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Startup",
+      "type": "object",
+      "description": "Stores comprehensive information about a startup idea or an existing startup registered on the EchelonAI platform.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Startup entity."
+        },
+        "founderId": {
+          "type": "string",
+          "description": "Reference to the UserProfile of the founder who registered this startup. (Relationship: UserProfile 1:N Startup)"
+        },
+        "name": {
+          "type": "string",
+          "description": "The official or proposed name of the startup."
+        },
+        "ideaDescription": {
+          "type": "string",
+          "description": "A detailed description of the startup's core idea, product, or service."
+        },
+        "industry": {
+          "type": "string",
+          "description": "The industry sector in which the startup operates or intends to operate."
+        },
+        "targetMarket": {
+          "type": "string",
+          "description": "A description of the primary target market or customer segment for the startup's offerings."
+        },
+        "region": {
+          "type": "string",
+          "description": "The primary geographical region where the startup is based or focuses its operations."
+        },
+        "initialBudget": {
+          "type": "number",
+          "description": "The initial financial budget allocated or estimated for the startup's operations."
+        },
+        "currentRevenue": {
+          "type": "number",
+          "description": "The current or projected annual revenue of the startup, visible to potential investors."
+        },
+        "teamSize": {
+          "type": "number",
+          "description": "The current number of team members actively involved with the startup."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp indicating when the startup's data was initially registered.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp indicating the last time the startup's data was updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "founderId",
+        "name",
+        "ideaDescription",
+        "industry",
+        "targetMarket",
+        "region",
+        "initialBudget",
+        "teamSize",
+        "createdAt"
+      ]
+    },
+    "AnalysisReport": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "AnalysisReport",
+      "type": "object",
+      "description": "Stores the detailed results of an AI engine analysis for a specific startup or intern, initiated by a user, under a particular operating mode.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the AnalysisReport entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the UserProfile of the user who initiated this analysis request. (Relationship: UserProfile 1:N AnalysisReport)"
+        },
+        "startupId": {
+          "type": "string",
+          "description": "Reference to the Startup entity that was the subject of this analysis. This field is required for 'founder', 'investor', and 'evolution' modes, and optional for 'intern' mode if the analysis is purely intern-focused. (Relationship: Startup 1:N AnalysisReport)"
+        },
+        "mode": {
+          "type": "string",
+          "description": "The operating mode under which the AI analysis was performed (e.g., 'founder', 'investor', 'intern', 'evolution')."
+        },
+        "analysisDate": {
+          "type": "string",
+          "description": "Timestamp indicating when the AI analysis was conducted.",
+          "format": "date-time"
+        },
+        "summary": {
+          "type": "string",
+          "description": "A general summary or high-level evaluation statement from the AI report, applicable across various modes."
+        },
+        "marketViabilityScore": {
+          "type": "number",
+          "description": "The market viability score (0-100) for the startup, specific to 'founder' mode."
+        },
+        "competitionIntensityScore": {
+          "type": "number",
+          "description": "The competition intensity score (0-100) for the startup, specific to 'founder' mode."
+        },
+        "scalabilityScore": {
+          "type": "number",
+          "description": "The scalability score (0-100) for the startup, specific to 'founder' mode."
+        },
+        "innovationIndexScore": {
+          "type": "number",
+          "description": "The innovation index score (0-100) for the startup, specific to 'founder' mode."
+        },
+        "overallStartupFitnessScore": {
+          "type": "number",
+          "description": "The overall startup fitness score (0-100), combining various factors, specific to 'founder' mode."
+        },
+        "roadmap3Months": {
+          "type": "array",
+          "description": "A list of key milestones or tasks for a 3-month execution roadmap, specific to 'founder' mode.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "riskScore": {
+          "type": "number",
+          "description": "The investment risk score (0-100) associated with the startup, specific to 'investor' mode."
+        },
+        "returnPotentialScore": {
+          "type": "number",
+          "description": "The potential return score (0-100) for an investment, specific to 'investor' mode."
+        },
+        "stabilityIndexScore": {
+          "type": "number",
+          "description": "The stability index score (0-100) reflecting the startup's resilience, specific to 'investor' mode."
+        },
+        "recommendation": {
+          "type": "string",
+          "description": "The investment recommendation (e.g., 'Invest', 'Observe', 'Avoid'), specific to 'investor' mode."
+        },
+        "growthProjection1Year": {
+          "type": "string",
+          "description": "Estimated growth projection for the startup over a 1-year period, specific to 'investor' mode."
+        },
+        "growthProjection3Year": {
+          "type": "string",
+          "description": "Estimated growth projection for the startup over a 3-year period, specific to 'investor' mode."
+        },
+        "growthProjection5Year": {
+          "type": "string",
+          "description": "Estimated growth projection for the startup over a 5-year period, specific to 'investor' mode."
+        },
+        "internStrengthAnalysis": {
+          "type": "string",
+          "description": "An analysis of the intern's strengths, specific to 'intern' mode."
+        },
+        "skillGapSuggestions": {
+          "type": "array",
+          "description": "Suggestions for skill gap improvements for the intern, specific to 'intern' mode.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "matchedStartupsJson": {
+          "type": "string",
+          "description": "A JSON string representing an array of matched startups, each with compatibility score and recommended role, specific to 'intern' mode."
+        },
+        "bestVariantIdea": {
+          "type": "string",
+          "description": "The idea description of the selected best startup variant, specific to 'evolution' mode."
+        },
+        "bestVariantFitnessScore": {
+          "type": "number",
+          "description": "The fitness score (0-100) of the selected best startup variant, specific to 'evolution' mode."
+        },
+        "mutationsJson": {
+          "type": "string",
+          "description": "A JSON string representing an array of mutated startup variations, each with their innovation, pricing strategy, and fitness score, specific to 'evolution' mode."
+        },
+        "fullOutputJson": {
+          "type": "string",
+          "description": "The complete raw JSON output from the AI engine for this analysis, stored as a string for comprehensive record-keeping."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "mode",
+        "analysisDate"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "UserProfile",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Stores user profile information. Access is private to the user themselves. The 'userType' field within this document is used to determine roles (founder, investor, intern) for access control across other collections. Includes 'userType' for role-based access."
+        }
+      },
+      {
+        "path": "/users/{founderId}/private_startups/{startupId}",
+        "definition": {
+          "entityName": "Startup",
+          "schema": {
+            "$ref": "#/backend/entities/Startup"
+          },
+          "description": "Stores private startup data owned by a specific founder (e.g., drafts, unlisted startups). Only the founder has read/write access. Includes denormalized 'founderId' for authorization independence.",
+          "params": [
+            {
+              "name": "founderId",
+              "description": "The unique identifier of the user who founded and owns this startup."
+            },
+            {
+              "name": "startupId",
+              "description": "The unique identifier for the specific private startup document."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/startups_for_investment/{startupId}",
+        "definition": {
+          "entityName": "Startup",
+          "schema": {
+            "$ref": "#/backend/entities/Startup"
+          },
+          "description": "Stores startup data made public for potential investors. Founders have full R/W on their own published startups. Investors have read-only access to all documents in this collection. Includes denormalized 'founderId' for founder R/W authorization independence and 'currentRevenue' for investor visibility.",
+          "params": [
+            {
+              "name": "startupId",
+              "description": "The unique identifier for the specific startup document available for investment."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/analysisReports/{analysisReportId}",
+        "definition": {
+          "entityName": "AnalysisReport",
+          "schema": {
+            "$ref": "#/backend/entities/AnalysisReport"
+          },
+          "description": "Stores AI analysis reports, private to the user who initiated them. Includes denormalized 'userId' for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user who initiated this analysis report."
+            },
+            {
+              "name": "analysisReportId",
+              "description": "The unique identifier for the specific analysis report document."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to adhere strictly to the core design principles, especially Authorization Independence and enabling secure Queryable Access Patterns (QAPs). \n\n1.  **User Profiles**: User profiles are stored in `/users/{userId}`. This path uses the authenticated user's UID (`request.auth.uid`) directly as the document ID, making ownership explicit and simplifying rules to `request.auth.uid == userId`. The `userType` field within the `UserProfile` document is used for role-based access control, accessed securely from the requesting user's own profile (e.g., `get(/users/$(request.auth.uid)).data.userType`), which is a permissible and debuggable pattern that does not introduce hierarchical authorization dependencies across *different data documents*.\n\n2.  **Startup Entities - Structural Segregation for QAPs**: To address the requirement that 'investors can see the revenue so can invest' while allowing founders to manage their startups privately, the 'Structural Segregation' mandate is applied. Startup data is split into two distinct collections based on its security posture:\n    *   `/users/{founderId}/private_startups/{startupId}`: This collection stores startups that are private to the founder. Access is restricted exclusively to the `founderId` (matching `request.auth.uid`). This maintains private ownership and allows founders to work on drafts or unlisted projects. The `founderId` is embedded in the path, ensuring Authorization Independence for ownership checks.\n    *   `/startups_for_investment/{startupId}`: This collection contains startups that founders have chosen to make visible to investors. Documents in this collection include a denormalized `founderId` for founder-specific write access and `currentRevenue` for investor visibility. This collection has a homogeneous security posture: founders have full R/W on their own documents, and verified investors have read access to all documents. This structure perfectly supports secure `list` operations (QAPs) for investors, as rules can simply allow reads on this entire collection for users identified as `investor` via their own `UserProfile`.\n\n3.  **Analysis Reports**: Analysis reports are stored in `/users/{userId}/analysisReports/{analysisReportId}`. An `AnalysisReport` is always initiated by and private to the `userId` who requested it. The `userId` is embedded in the path, ensuring that rules can verify ownership directly (`request.auth.uid == userId`) without requiring any `get()` calls to other documents to determine access rights, thus maintaining Authorization Independence. The `startupId` field within the report serves as a reference but does not dictate access control for the report itself; access is solely based on the report's owner (`userId`).\n\nThis design prioritizes clarity, debuggability, and performance by eliminating complex `get()` calls in security rules for data authorization, enabling efficient QAPs through structural segregation, and maintaining explicit ownership patterns."
+  }
+}
