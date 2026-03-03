@@ -11,20 +11,34 @@ Advanced AI Startup Accelerator, VC, and Market Analyst.
    - **Talent Mode**: Match your skills semantically with top startups.
 3. **Register**: Founders can "Publish" analyzed startups to the public pool.
 
-## ☁️ Cloud Deployment Status
+## ☁️ Cloud Deployment: Push to GitHub
 
-EchelonAI is **Cloud-Ready**. It is currently configured for deployment on **Firebase App Hosting**.
+Since I am your AI partner, I can prepare the code, but you'll need to run these commands in your terminal to push to GitHub:
 
-### Steps to Deploy to Production:
-1. **Repository**: Push this code to your GitHub repository.
-2. **Firebase Console**: 
-   - Go to the **App Hosting** section in the Firebase Console.
-   - Click "Create Backend" and link your GitHub repository.
-3. **Environment Secrets**: Add the following secrets in the App Hosting configuration:
-   - `NEWS_API_KEY`
-   - `ALPHA_VANTAGE_API_KEY`
-   - `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`
-4. **Build**: Firebase will automatically detect the `apphosting.yaml` and trigger a Next.js 15 production build.
+1. **Initialize Git**:
+   ```bash
+   git init
+   git add .
+   git commit -m "initial: echelon-ai engine"
+   ```
+
+2. **Connect to GitHub**:
+   - Create a new repository on [GitHub](https://github.com/new).
+   - Copy the repository URL and run:
+   ```bash
+   git remote add origin <YOUR_GITHUB_REPO_URL>
+   git branch -M main
+   git push -u origin main
+   ```
+
+3. **Deploy to Firebase App Hosting**:
+   - Go to the **App Hosting** section in the [Firebase Console](https://console.firebase.google.com/).
+   - Click "Create Backend" and select your GitHub repository.
+   - **Environment Secrets**: Add these in the App Hosting dashboard:
+     - `NEWS_API_KEY`
+     - `ALPHA_VANTAGE_API_KEY`
+     - `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`
+   - Firebase will automatically detect the `apphosting.yaml` and deploy your Next.js 15 site.
 
 ## 🔑 Intelligence Layers
 
@@ -33,6 +47,7 @@ EchelonAI is **Cloud-Ready**. It is currently configured for deployment on **Fir
 - **NewsAPI**: Real-time industry sentiment analysis.
 - **Alpha Vantage**: Financial benchmarks and sector performance.
 - **Google Maps JS API**: Geospatial Intelligence for regional strategy.
+- **Imagen 4**: Neural concept art visualization.
 
 ### Recommended (To Add)
 - **Clearbit API** (`CLEARBIT_API_KEY`): Identity enrichment (Logos, Bio).
