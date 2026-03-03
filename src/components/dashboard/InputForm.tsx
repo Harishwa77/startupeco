@@ -17,7 +17,7 @@ import { evaluateFounderStartup } from "@/ai/flows/founder-startup-evaluation";
 import { investorInvestmentAnalysis } from "@/ai/flows/investor-investment-analysis";
 import { internStartupMatching } from "@/ai/flows/intern-startup-matching";
 import { evolutionStartupMutation } from "@/ai/flows/evolution-startup-mutation";
-import { Loader2, Play, Briefcase } from "lucide-react";
+import { Loader2, Play, Briefcase, Info } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useFirestore, useCollection, useMemoFirebase, useUser } from "@/firebase";
 import { collection } from "firebase/firestore";
@@ -35,9 +35,9 @@ export function InputForm({ mode, onResultsReceived, onLoading, isLoading }: Inp
   const { user } = useUser();
 
   const startupsQuery = useMemoFirebase(() => {
-    if (!user) return null;
+    // Note: We don't restrict this query by user because talent needs to see all public startups
     return collection(db, "startups_for_investment");
-  }, [db, user]);
+  }, [db]);
 
   const { data: startupPool, isLoading: isPoolLoading } = useCollection(startupsQuery);
   const [selectedStartupId, setSelectedStartupId] = useState<string>("");
@@ -111,10 +111,15 @@ export function InputForm({ mode, onResultsReceived, onLoading, isLoading }: Inp
           investmentAmount: formData.investmentAmount
         });
       } else if (mode === "intern") {
+        // Use real startups from the pool if available, otherwise fallback to example data
+        const startupsForMatching = startupPool && startupPool.length > 0 
+          ? startupPool.map(s => `${s.name}: ${s.ideaDescription} (${s.industry})`)
+          : formData.availableStartups.split(",").map(s => s.trim());
+
         result = await internStartupMatching({
           internSkills: formData.internSkills,
           internExperience: formData.internExperience,
-          availableStartups: formData.availableStartups.split(",").map(s => s.trim())
+          availableStartups: startupsForMatching
         });
       } else if (mode === "evolution") {
         result = await evolutionStartupMutation({
@@ -125,7 +130,7 @@ export function InputForm({ mode, onResultsReceived, onLoading, isLoading }: Inp
           budget: formData.budget,
           teamSize: formData.teamSize,
           startupData: formData.startupData,
-          availableStartups: formData.availableStartups.split(",").map(s => s.trim()),
+          availableStartups: startupPool?.map(s => s.name) || formData.availableStartups.split(",").map(s => s.trim()),
           marketData: formData.marketData,
           competitionData: formData.competitionData
         });
@@ -149,36 +154,34 @@ export function InputForm({ mode, onResultsReceived, onLoading, isLoading }: Inp
       return (
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="internSkills">Skills</Label>
+            <Label htmlFor="internSkills">Core Skills</Label>
             <Textarea 
               id="internSkills" 
               name="internSkills" 
-              placeholder="e.g. Python, React, SQL, AWS..." 
+              placeholder="e.g. React, Node.js, Financial Modeling, UI Design..." 
               value={formData.internSkills}
               onChange={handleChange}
               className="bg-background/50 border-border/50 min-h-[100px]"
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="internExperience">Experience</Label>
+            <Label htmlFor="internExperience">Professional Background</Label>
             <Textarea 
               id="internExperience" 
               name="internExperience" 
-              placeholder="Describe your past roles or projects..." 
+              placeholder="Describe your past roles, internships, or major projects..." 
               value={formData.internExperience}
               onChange={handleChange}
               className="bg-background/50 border-border/50 min-h-[100px]"
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="availableStartups">Available Startups (Comma separated)</Label>
-            <Input 
-              id="availableStartups" 
-              name="availableStartups" 
-              value={formData.availableStartups}
-              onChange={handleChange}
-              className="bg-background/50 border-border/50"
-            />
+          <div className="p-3 bg-accent/10 border border-accent/20 rounded-lg flex items-start gap-3">
+            <Info className="w-4 h-4 text-accent mt-0.5 flex-shrink-0" />
+            <p className="text-[10px] text-muted-foreground leading-tight italic">
+              {startupPool && startupPool.length > 0 
+                ? `The engine will automatically match your profile against the ${startupPool.length} startups currently in the EchelonAI pool.`
+                : "The pool is currently empty. The engine will use benchmark startup profiles for your analysis."}
+            </p>
           </div>
         </div>
       );
