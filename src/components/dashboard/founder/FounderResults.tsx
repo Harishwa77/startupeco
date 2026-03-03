@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -6,7 +5,7 @@ import { ScoreGrid } from "../ScoreGrid";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, AlertTriangle, Lightbulb, TrendingUp, Cpu, Map, Globe, Loader2, ShieldCheck } from "lucide-react";
+import { CheckCircle2, AlertTriangle, Lightbulb, TrendingUp, Cpu, Map, Globe, Loader2, ShieldCheck, Link2 } from "lucide-react";
 import { useFirestore, useUser, useAuth } from "@/firebase";
 import { addDocumentNonBlocking } from "@/firebase/non-blocking-updates";
 import { initiateAnonymousSignIn } from "@/firebase/non-blocking-login";
@@ -27,7 +26,6 @@ export function FounderResults({ data, input }: FounderResultsProps) {
 
   const handlePublish = async () => {
     if (!user) {
-      // Automatically initiate sign-in if user isn't connected
       initiateAnonymousSignIn(auth);
       toast({
         title: "Establishing Connection",
@@ -70,12 +68,15 @@ export function FounderResults({ data, input }: FounderResultsProps) {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <h2 className="text-2xl font-headline font-bold text-foreground">Strategic Analysis Report</h2>
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-headline font-bold text-foreground">Strategic Analysis Report</h2>
+          <p className="text-sm text-muted-foreground font-body">Multivariate startup viability and execution assessment.</p>
+        </div>
         <Button 
           onClick={handlePublish} 
           disabled={isPublishing}
-          className="bg-primary hover:bg-primary/90 text-primary-foreground font-headline font-bold uppercase tracking-wider text-xs gap-2 min-w-[200px]"
+          className="bg-primary hover:bg-primary/90 text-primary-foreground font-headline font-bold uppercase tracking-wider text-xs gap-2 min-w-[220px] shadow-lg shadow-primary/20"
         >
           {isPublishing ? (
             <Loader2 className="w-4 h-4 animate-spin" />
@@ -84,9 +85,9 @@ export function FounderResults({ data, input }: FounderResultsProps) {
           ) : (
             <ShieldCheck className="w-4 h-4" />
           )}
-          {user ? "Register for Investment" : "Connect & Register"}
+          {user ? "Publish to Investment Pool" : "Connect & Register"}
         </Button>
-      </div>
+      </header>
 
       <ScoreGrid scores={data.scores} />
 
@@ -98,26 +99,56 @@ export function FounderResults({ data, input }: FounderResultsProps) {
           </div>
           <div className="space-y-3">
             <div className="p-3 bg-secondary/40 rounded border border-border/30">
-              <p className="text-xs text-muted-foreground mb-1 font-headline uppercase tracking-wider">Evaluation</p>
-              <p className="text-sm font-body">{data.evaluation}</p>
+              <p className="text-[10px] text-muted-foreground mb-1 font-headline uppercase tracking-wider font-bold">Original Evaluation</p>
+              <p className="text-sm font-body text-foreground/90 leading-relaxed">{data.evaluation}</p>
             </div>
-            <div className="p-3 bg-primary/10 rounded border border-primary/20">
-              <p className="text-xs text-primary mb-1 font-headline uppercase tracking-wider">Refined Idea</p>
-              <p className="text-sm font-body italic">"{data.improvedIdea}"</p>
+            <div className="p-4 bg-primary/5 rounded-xl border border-primary/20 shadow-inner">
+              <p className="text-[10px] text-primary mb-1 font-headline uppercase tracking-wider font-bold">Optimized Concept</p>
+              <p className="text-sm font-body italic text-primary-foreground/90 leading-relaxed">"{data.improvedIdea}"</p>
             </div>
           </div>
         </Card>
 
         <Card className="p-6 bg-card border-border/50 space-y-4">
           <div className="flex items-center gap-2">
-            <Lightbulb className="w-5 h-5 text-accent" />
-            <h3 className="font-headline font-semibold">Innovation Suggestions</h3>
+            <Link2 className="w-5 h-5 text-accent" />
+            <h3 className="font-headline font-semibold">Strategic API Integrations</h3>
           </div>
-          <ul className="space-y-3">
+          <div className="grid grid-cols-1 gap-3">
+            {data.apiRecommendations?.map((api: any, i: number) => (
+              <div key={i} className="p-3 rounded-lg bg-secondary/30 border border-border/30 flex items-start gap-3">
+                <div className="bg-accent/20 text-accent p-1.5 rounded-md mt-0.5">
+                  <Cpu className="w-3.5 h-3.5" />
+                </div>
+                <div>
+                  <p className="text-sm font-headline font-bold">{api.name}</p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">{api.purpose}</p>
+                </div>
+              </div>
+            ))}
+            {!data.apiRecommendations && <p className="text-xs text-muted-foreground italic">Generating strategic API layer...</p>}
+          </div>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <Card className="p-6 bg-card border-border/50 space-y-4">
+          <div className="flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 text-accent" />
+            <h3 className="font-headline font-semibold">Revenue Optimization</h3>
+          </div>
+          <p className="text-sm font-body leading-relaxed text-muted-foreground">{data.revenueModelOptimization}</p>
+        </Card>
+
+        <Card className="p-6 bg-card border-border/50 space-y-4">
+          <div className="flex items-center gap-2">
+            <Lightbulb className="w-5 h-5 text-accent" />
+            <h3 className="font-headline font-semibold">Innovation Boosters</h3>
+          </div>
+          <ul className="space-y-2">
             {data.innovationSuggestions.map((suggestion: string, i: number) => (
-              <li key={i} className="flex gap-3 text-sm font-body">
-                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-accent/20 text-accent flex items-center justify-center text-[10px] font-bold">{i+1}</span>
-                {suggestion}
+              <li key={i} className="flex gap-2 text-[13px] font-body text-muted-foreground">
+                <span className="text-accent font-bold">•</span> {suggestion}
               </li>
             ))}
           </ul>
@@ -125,20 +156,12 @@ export function FounderResults({ data, input }: FounderResultsProps) {
 
         <Card className="p-6 bg-card border-border/50 space-y-4">
           <div className="flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-accent" />
-            <h3 className="font-headline font-semibold">Revenue Optimization</h3>
-          </div>
-          <p className="text-sm font-body leading-relaxed">{data.revenueModelOptimization}</p>
-        </Card>
-
-        <Card className="p-6 bg-card border-border/50 space-y-4">
-          <div className="flex items-center gap-2">
             <Cpu className="w-5 h-5 text-accent" />
-            <h3 className="font-headline font-semibold">Recommended Tech Stack</h3>
+            <h3 className="font-headline font-semibold">Technical Stack</h3>
           </div>
           <div className="flex flex-wrap gap-2">
             {data.technicalStack.map((tech: string, i: number) => (
-              <Badge key={i} variant="outline" className="bg-secondary/50 font-code text-[10px] py-1">
+              <Badge key={i} variant="outline" className="bg-secondary/50 font-code text-[10px] py-1 border-border/50">
                 {tech}
               </Badge>
             ))}
@@ -149,14 +172,13 @@ export function FounderResults({ data, input }: FounderResultsProps) {
       <Card className="p-6 bg-card border-border/50">
         <div className="flex items-center gap-2 mb-6">
           <Map className="w-5 h-5 text-accent" />
-          <h3 className="font-headline font-semibold">3-Month Execution Roadmap</h3>
+          <h3 className="font-headline font-semibold uppercase tracking-widest text-xs">3-Month Execution Roadmap</h3>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative">
-          <div className="absolute top-1/2 left-0 w-full h-0.5 bg-border -translate-y-1/2 hidden md:block"></div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {data.roadmap_3_months.map((milestone: string, i: number) => (
-            <div key={i} className="relative z-10 bg-card p-4 rounded-xl border border-border/50 shadow-sm space-y-2">
-              <span className="text-[10px] font-headline font-bold text-accent uppercase bg-accent/10 px-2 py-0.5 rounded">Month {i+1}</span>
-              <p className="text-sm font-body leading-tight">{milestone}</p>
+            <div key={i} className="relative p-5 bg-secondary/20 rounded-xl border border-border/50 group hover:border-accent/30 transition-colors">
+              <span className="absolute -top-2 -left-2 w-8 h-8 rounded-full bg-background border border-border/50 flex items-center justify-center text-xs font-bold text-accent shadow-lg">M{i+1}</span>
+              <p className="text-sm font-body leading-tight mt-2">{milestone}</p>
             </div>
           ))}
         </div>
@@ -164,13 +186,16 @@ export function FounderResults({ data, input }: FounderResultsProps) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card className="p-6 bg-card border-border/50">
-          <h3 className="font-headline font-semibold mb-4 text-accent">Market Dynamics</h3>
-          <p className="text-sm font-body leading-relaxed">{data.marketAnalysis}</p>
+          <h3 className="font-headline font-semibold mb-4 text-accent uppercase tracking-tighter">Market Analysis</h3>
+          <p className="text-sm font-body leading-relaxed text-muted-foreground">{data.marketAnalysis}</p>
         </Card>
-        <Card className="p-6 bg-[#1A1111] border-destructive/20">
+        <Card className="p-6 bg-[#1A1111] border-destructive/20 relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-4 opacity-10">
+            <AlertTriangle className="w-12 h-12 text-destructive" />
+          </div>
           <div className="flex items-center gap-2 mb-4">
             <AlertTriangle className="w-5 h-5 text-destructive" />
-            <h3 className="font-headline font-semibold text-destructive">Risk Assessment</h3>
+            <h3 className="font-headline font-semibold text-destructive uppercase tracking-tighter">Risk Assessment</h3>
           </div>
           <p className="text-sm font-body leading-relaxed text-destructive-foreground/80">{data.riskAnalysis}</p>
         </Card>

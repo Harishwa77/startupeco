@@ -18,11 +18,11 @@ const InvestorInvestmentAnalysisInputSchema = z.object({
   region: z.string().describe('The geographical region of operation.'),
   budget: z.string().describe('The current budget or funding of the startup.'),
   teamSize: z.string().describe('The size of the startup team.'),
-  founderData: z.string().describe('Data pertaining to the founders (e.g., experience, background).'),
-  startupData: z.string().describe('General data about the startup (e.g., traction, past performance).'),
-  marketData: z.string().describe('Current market data and trends relevant to the startup.'),
-  competitionData: z.string().describe('Information about competitors and the competitive landscape.'),
-  registeredStartupsCount: z.number().describe('The total number of startups currently registered in the platform pool.'),
+  founderData: z.string().describe('Data pertaining to the founders.'),
+  startupData: z.string().describe('General data about the startup.'),
+  marketData: z.string().describe('Current market data and trends.'),
+  competitionData: z.string().describe('Information about competitors.'),
+  registeredStartupsCount: z.number().describe('Total startups in the pool.'),
   investmentAmount: z.string().describe('The amount the investor is considering committing.'),
 });
 export type InvestorInvestmentAnalysisInput = z.infer<typeof InvestorInvestmentAnalysisInputSchema>;
@@ -35,11 +35,16 @@ const InvestorInvestmentAnalysisOutputSchema = z.object({
     '3_year': z.string().describe('Estimated growth projection for 3 years.'),
     '5_year': z.string().describe('Estimated growth projection for 5 years.'),
   }),
+  valuationData: z.array(z.object({
+    year: z.string(),
+    valuation: z.number().describe('Projected valuation in thousands of USD.'),
+    revenue: z.number().describe('Projected revenue in thousands of USD.'),
+  })).describe('Numerical projection data for charting.'),
   estimatedROI: z.string().describe('Estimated Return on Investment percentage.'),
   recessionSurvivalProbability: z.string().describe('Simulation of recession survival probability.'),
   majorRisks: z.array(z.string()).describe('Identification of key risk factors.'),
   recommendation: z.string().describe('Investment recommendation: Invest / Observe / Avoid.'),
-  poolSaturationAnalysis: z.string().describe('Analysis of how this startup compares to the registered pool of competitors.'),
+  poolSaturationAnalysis: z.string().describe('Analysis of how this startup compares to the registered pool.'),
   scores: z.object({
     riskScore: z.number().min(0).max(100).describe('Risk score (0-100).'),
     returnPotential: z.number().min(0).max(100).describe('Return potential score (0-100).'),
@@ -58,38 +63,20 @@ const investorInvestmentAnalysisPrompt = ai.definePrompt({
   output: { schema: InvestorInvestmentAnalysisOutputSchema },
   prompt: `You are an Advanced AI Startup Ecosystem Engine operating as an AI Venture Capitalist. 
 
-Your task is to provide a comprehensive investment attractiveness evaluation. You must also consider the context of the platform's startup pool.
+Your task is to provide a comprehensive investment attractiveness evaluation. 
 
 CRITICAL: You must set the "mode" property in the output JSON to exactly "investor".
 
 Instructions:
-1. Evaluate the investment attractiveness for a potential check of {{{investmentAmount}}}.
-2. Consider that there are {{{registeredStartupsCount}}} other startups in the pool. Analyze how this specific startup stands out (poolSaturationAnalysis).
-3. Estimate realistic 1-year, 3-year, and 5-year growth projections.
-4. Estimate a conservative projected ROI percentage.
-5. Simulate the startup's probability of survival during an economic recession.
-6. Identify and list key risk factors.
-7. Provide a clear investment recommendation: "Invest", "Observe", or "Avoid".
-8. Assign measurable scores (0-100) for riskScore, returnPotential, and stabilityIndex.
-
-General Rules:
-- Be analytical and data-driven.
-- Provide realistic projections.
-- Avoid motivational fluff.
-- Think conservatively like a real investor.
-- Return ONLY valid JSON.
+1. Evaluate attractiveness for a check of {{{investmentAmount}}}.
+2. Provide a 5-year numerical growth projection for valuation and revenue (in $1000s). This will be used for a line chart. Use exactly 5 data points (Year 1, 2, 3, 4, 5).
+3. Estimate ROI, survival odds, and risks.
+4. Assign measurable scores (0-100).
 
 Startup Details:
-Startup Idea: {{{startupIdea}}}
-Industry: {{{industry}}}
-Target Market: {{{targetMarket}}}
-Region: {{{region}}}
-Budget: {{{budget}}}
-Team Size: {{{teamSize}}}
-Founder Data: {{{founderData}}}
-Startup Data: {{{startupData}}}
-Market Data: {{{marketData}}}
-Competition Data: {{{competitionData}}}`,
+Idea: {{{startupIdea}}}
+Revenue: {{{startupData}}}
+Industry: {{{industry}}}`,
 });
 
 const investorInvestmentAnalysisFlow = ai.defineFlow(
