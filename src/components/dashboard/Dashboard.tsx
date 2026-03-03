@@ -4,8 +4,9 @@ import React, { useState } from "react";
 import { ModeSelector } from "./ModeSelector";
 import { InputForm } from "./InputForm";
 import { OutputDisplay } from "./OutputDisplay";
+import { Chatbot } from "./Chatbot";
 import { Card } from "@/components/ui/card";
-import { Zap, Shield, TrendingUp, BrainCircuit, User as UserIcon, LogOut, LogIn, Wifi, WifiOff } from "lucide-react";
+import { Zap, Shield, TrendingUp, BrainCircuit, User as UserIcon, LogOut, LogIn, Wifi } from "lucide-react";
 import { useUser, useAuth } from "@/firebase";
 import { initiateAnonymousSignIn } from "@/firebase/non-blocking-login";
 import { Button } from "@/components/ui/button";
@@ -37,7 +38,7 @@ export function Dashboard() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-8 md:py-12 space-y-8">
+    <div className="max-w-7xl mx-auto px-4 py-8 md:py-12 space-y-8 relative">
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-border/50 pb-8">
         <div className="flex flex-col gap-4">
           <div className="flex items-center gap-2">
@@ -140,6 +141,8 @@ export function Dashboard() {
           />
         </div>
       </div>
+
+      <Chatbot />
     </div>
   );
 }
