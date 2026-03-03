@@ -68,7 +68,8 @@ Founder Data: {{{founderData}}}
 {{#if marketData}}Market Data: {{{marketData}}}{{/if}}
 {{#if competitionData}}Competition Data: {{{competitionData}}}{{/if}}
 
-Based on the provided input, perform the following tasks and return ONLY valid JSON that strictly adheres to the output schema:
+Based on the provided input, perform the following tasks and return ONLY valid JSON that strictly adheres to the output schema.
+CRITICAL: You must set the "mode" property in the output JSON to exactly "founder".
 
 1.  **Evaluate Clarity and Uniqueness**: Provide a direct and concise evaluation of the startup idea's clarity and its unique selling proposition.
 2.  **Suggest 3 Innovation Improvements**: Propose three distinct and actionable innovation improvements to enhance the idea.
@@ -77,7 +78,7 @@ Based on the provided input, perform the following tasks and return ONLY valid J
 5.  **Generate 3-Month Execution Roadmap**: Create a realistic 3-month execution roadmap with critical milestones and objectives.
 6.  **Provide Market Analysis**: Deliver a thorough market analysis, focusing on market size, trends, and opportunities.
 7.  **Provide Risk Analysis**: Identify and analyze key risks, including market, operational, financial, and competitive risks.
-8.  **Score the Startup (0-100)**: Assign numerical scores (0-100) for the following metrics, justifying them implicitly through your analysis:
+8.  **Score the Startup (0-100)**: Assign numerical scores (0-100) for the following metrics:
     -   marketViability: The potential for the startup to succeed in its target market.
     -   competitionIntensity: The level of competition in the industry.
     -   scalability: The ease with which the startup can grow and expand.
@@ -92,7 +93,7 @@ Remember to:
 -   Think conservatively like a real investor.
 -   Always return ONLY valid JSON.
 -   Do NOT include explanations outside JSON.
--   Do NOT use markdown formatting (except for within the JSON string values if necessary).
+-   Do NOT use markdown formatting.
 
 Your response should be a single JSON object.`,
 });
