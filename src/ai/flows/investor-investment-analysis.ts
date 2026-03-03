@@ -60,6 +60,8 @@ const investorInvestmentAnalysisPrompt = ai.definePrompt({
 
 Your task is to provide a comprehensive investment attractiveness evaluation. You must also consider the context of the platform's startup pool.
 
+CRITICAL: You must set the "mode" property in the output JSON to exactly "investor".
+
 Instructions:
 1. Evaluate the investment attractiveness for a potential check of {{{investmentAmount}}}.
 2. Consider that there are {{{registeredStartupsCount}}} other startups in the pool. Analyze how this specific startup stands out (poolSaturationAnalysis).
