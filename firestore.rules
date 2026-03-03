@@ -13,18 +13,6 @@ service cloud.firestore {
      * Data Structure:
      * - /users/{userId}: Root profiles and private sub-collections (private_startups, analysisReports).
      * - /startups_for_investment/{startupId}: A shared collection for startups seeking funding.
-     *
-     * Key Security Decisions:
-     * 1. Authorization Independence: Critical IDs (founderId, userId) are denormalized into documents or 
-     *    embedded in paths to allow logic that doesn't require expensive cross-document lookups.
-     * 2. Structural Segregation: Startups are separated into private drafts (/users/.../private_startups) 
-     *    and public investment opportunities (/startups_for_investment) to simplify listing rules.
-     * 3. Role-Based Access: The 'investor' role is verified by performing a lookup on the user's own profile 
-     *    to grant read access to the investment pool.
-     *
-     * Denormalization for Authorization:
-     * - 'founderId' is required on all Startup documents to verify ownership during writes.
-     * - 'userId' is required on AnalysisReports to ensure only the creator can access them.
      */
 
     // --- Helper Functions ---
@@ -44,22 +32,10 @@ service cloud.firestore {
       return resource != null && isOwner(userId);
     }
 
-    /** 
-     * Fetches the user's role from their profile. 
-     * Used sparingly for role-based read access to public collections.
-     */
-    function hasRole(role) {
-      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.userType == role;
-    }
-
     // --- Collection Rules ---
 
     /**
      * @description Rules for user profiles. Users can only manage their own profile.
-     * @path /users/{userId}
-     * @allow (create) User with UID 'abc' creates document '/users/abc'.
-     * @deny (update) User with UID 'abc' tries to modify document '/users/xyz'.
-     * @principle Ownership: Enforces that the document ID matches the authenticated user's UID.
      */
     match /users/{userId} {
       allow get, list: if isOwner(userId);
@@ -70,10 +46,6 @@ service cloud.firestore {
 
     /**
      * @description Private startup drafts/data owned by a founder.
-     * @path /users/{founderId}/private_startups/{startupId}
-     * @allow (list) Founder 'abc' lists their own private startups.
-     * @deny (get) Investor 'investor_1' tries to read founder 'abc's private startup.
-     * @principle Path-based Authorization: Access is strictly limited to the user identified in the path.
      */
     match /users/{founderId}/private_startups/{startupId} {
       allow get, list: if isOwner(founderId);
@@ -83,15 +55,12 @@ service cloud.firestore {
     }
 
     /**
-     * @description Publicly listable startups for investment. Anyone signed in can list the pool.
-     * @path /startups_for_investment/{startupId}
-     * @allow (list) Any authenticated user can browse the investment pool.
-     * @deny (update) User 'investor_1' tries to change the revenue of a startup they don't own.
-     * @principle Discovery for All / Owner-Only Write: Allows ecosystem discovery while protecting data integrity.
+     * @description Publicly listable startups for investment. 
+     * Allow anyone to read/list for ecosystem discovery (Investor/Talent modes).
      */
     match /startups_for_investment/{startupId} {
-      // Allow browsing by any authenticated user for discovery
-      allow get, list: if isSignedIn();
+      // Allow browsing by any user (authenticated or not) for discovery
+      allow get, list: if true;
       
       // Only the founder can create or modify their investment listing.
       allow create: if isSignedIn() && request.resource.data.founderId == request.auth.uid;
@@ -101,10 +70,6 @@ service cloud.firestore {
 
     /**
      * @description AI Analysis reports initiated by and private to a specific user.
-     * @path /users/{userId}/analysisReports/{analysisReportId}
-     * @allow (create) User 'abc' saves a new analysis report to their own subcollection.
-     * @deny (list) User 'xyz' attempts to list reports belonging to user 'abc'.
-     * @principle Relational Integrity: Ensures the 'userId' field matches the path and the authenticated user.
      */
     match /users/{userId}/analysisReports/{analysisReportId} {
       allow get, list: if isOwner(userId);
