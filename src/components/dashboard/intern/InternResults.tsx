@@ -3,13 +3,24 @@
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { GraduationCap, Briefcase, Zap, CheckCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { GraduationCap, Briefcase, Zap, CheckCircle, Send } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface InternResultsProps {
   data: any;
 }
 
 export function InternResults({ data }: InternResultsProps) {
+  const { toast } = useToast();
+
+  const handleApply = (startupName: string) => {
+    toast({
+      title: "Application Sent",
+      description: `Your profile has been shared with the team at ${startupName}.`,
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4">
@@ -25,7 +36,7 @@ export function InternResults({ data }: InternResultsProps) {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {data.matchedStartups.map((match: any, i: number) => (
-          <Card key={i} className="p-6 bg-secondary/20 border-border/50 relative overflow-hidden group hover:border-accent/50 transition-colors">
+          <Card key={i} className="p-6 bg-secondary/20 border-border/50 relative overflow-hidden group hover:border-accent/50 transition-colors flex flex-col justify-between">
             <div className="absolute top-0 right-0 p-4">
                <div className="text-2xl font-bold text-accent/20 group-hover:text-accent/40 transition-colors">#{i+1}</div>
             </div>
@@ -46,6 +57,14 @@ export function InternResults({ data }: InternResultsProps) {
                 <p className="text-sm font-headline font-medium">{match.recommendedRole}</p>
               </div>
             </div>
+            <Button 
+              onClick={() => handleApply(match.startupName)}
+              className="mt-6 w-full bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 gap-2 font-headline font-bold text-xs uppercase"
+              variant="outline"
+            >
+              <Send className="w-3 h-3" />
+              Apply Now
+            </Button>
           </Card>
         ))}
       </div>
